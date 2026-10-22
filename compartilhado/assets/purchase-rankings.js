@@ -32,11 +32,11 @@
   const entries=[...groups.values()].map(g=>{
    const byOrder=new Map();for(const r of g.rows){const d=c.timing?weekdays(r[c.from],r[c.to]):null;if(d==null)continue;const key=JSON.stringify([orderKey(r),c.from==='data_sc'?r.numero_sc:r[c.from],r[c.to]]);byOrder.set(key,Math.max(d,byOrder.get(key)??0));}
    const durations=[...byOrder.values()],deliveries=events(g.rows,arrival),max=durations.length?Math.max(...durations):null;
-   const value=g.rows.reduce((n,r)=>n+Number(criterion==='paidPending'?r.valor_pendencia_entrega??r.valor_total??0:r.valor_total||0),0);
+   const value=g.rows.reduce((n,r)=>n+Number(r.valor_total||0),0);
    return {...g,value,orders:new Set(g.rows.map(orderKey)).size,evaluated:durations.length,mean:average(durations),max,deliveries,arrivalMean:average(deliveries.map(e=>e.days)),arrivalMax:deliveries.length?Math.max(...deliveries.map(e=>e.days)):null,lastArrival:deliveries[0]||null,
     score:mode==='products'?average(deliveries.map(e=>e.days)):c.timing?max:value};
   }).sort((a,b)=>(b.score??-Infinity)-(a.score??-Infinity)||a.label.localeCompare(b.label,'pt-BR'));
-  const totalValue=rows.reduce((n,r)=>n+Number(criterion==='paidPending'?r.valor_pendencia_entrega??r.valor_total??0:r.valor_total||0),0);
+  const totalValue=rows.reduce((n,r)=>n+Number(r.valor_total||0),0);
   return {config:c,arrival,entries,totalValue};
  }
  return {config,rank,weekdays,events,validDate};

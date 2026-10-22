@@ -1,0 +1,26 @@
+.signature {
+  margin-top: auto;
+  margin-bottom: 10px;
+  padding: 0 5px;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.45px;
+}
+
+.signature span {
+  display: block;
+  text-transform: uppercase;
+}
+
+.signature b {
+  display: block;
+  margin-top: 3px;
+  color: #b9cadb;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.25px;
+}
+
+.signature + .sync {
+  margin-top: 0;
+}

@@ -1,0 +1,5 @@
+.deadline-bar i[data-deadline-status],.deadline-bar em[data-deadline-status],.deadline-row span[data-deadline-status]{cursor:pointer;transition:filter .16s,transform .16s,box-shadow .16s}
+.deadline-bar i[data-deadline-status]:hover,.deadline-bar i[data-deadline-status]:focus{filter:brightness(.92);box-shadow:0 0 0 3px #35d39733;outline:none}
+.deadline-bar em[data-deadline-status]:hover,.deadline-bar em[data-deadline-status]:focus{filter:brightness(.92);box-shadow:0 0 0 3px #f15f6f33;outline:none}
+.deadline-row span[data-deadline-status]{padding:4px 6px;border-radius:7px}
+.deadline-row span[data-deadline-status]:hover,.deadline-row span[data-deadline-status]:focus{background:#edf5fa;transform:translateY(-1px);outline:none}
