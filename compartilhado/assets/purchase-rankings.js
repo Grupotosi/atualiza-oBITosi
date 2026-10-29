@@ -2,7 +2,7 @@
  const D=typeof module==='object'&&module.exports?require('./deadline-calculator'):globalThis.TosiDeadlines;
  const norm=v=>String(v??'').trim().replace(/\s+/g,' ').toLocaleLowerCase('pt-BR');
  function validDate(v){if(!/^\d{4}-\d{2}-\d{2}$/.test(v||''))return false;const d=new Date(v+'T12:00:00Z');return !isNaN(d)&&d.toISOString().slice(0,10)===v;}
- function weekdays(a,b){if(!validDate(a)||!validDate(b)||b<a)return null;const start=new Date(a+'T12:00:00Z'),end=new Date(b+'T12:00:00Z');let n=0;while(start<end){start.setUTCDate(start.getUTCDate()+1);if(![0,6].includes(start.getUTCDay()))n++;}return n;}
+ function weekdays(a,b){return D.weekdays(a,b);}
  const phases={
   advanceDeadlineScOrder:['Emissão SC → emissão do pedido',5,'data_sc','data_pedido','prazo_time_antecipado'],
   advanceDeadlineReportPayment:['Primeiro relatório → Vencto. Titulo',5,'data_relatorio','data_vencimento','prazo_time_antecipado'],
@@ -22,7 +22,7 @@
  const productKey=r=>JSON.stringify([norm(r.grupo_codigo||r.grupo_nome),norm(r.descricao)||r.chave]);
  function events(rows,c){const unique=new Map();for(const r of rows){const duration=weekdays(r[c.from],r[c.to]);if(duration==null)continue;const key=JSON.stringify([r.filial,r.num_pc||r.chave,c.to==='data_pre_nota'?productKey(r):r.numero_sc||'',r[c.from],r[c.to]]);if(!unique.has(key))unique.set(key,{row:r,from:r[c.from],to:r[c.to],days:duration});}return [...unique.values()].sort((a,b)=>b.to.localeCompare(a.to)||b.days-a.days);}
  function rank(rows,criterion,mode='suppliers',asOf=D.today()){
-  const c={...config(criterion),...(D.definitions[criterion]?{label:D.definitions[criterion].label}:{})},effectiveCriterion=D.definitions[criterion]?criterion:'deadlineScOrder',groups=new Map(),arrival=c.to==='data_pre_nota'?{...c,from:c.from==='data_vencimento'?'data_pagamento_real':c.from}:{label:'Emissão do pedido → pré-nota',from:'data_pedido',to:'data_pre_nota'};
+  const c={...config(criterion),...(D.definitions[criterion]?{label:D.definitions[criterion].label}:{})},effectiveCriterion=D.definitions[criterion]?criterion:'deadlineScOrder',groups=new Map(),arrival=c.to==='data_pre_nota'?c:{label:'Emissão do pedido → pré-nota',from:'data_pedido',to:'data_pre_nota'};
   for(const r of rows){let key,label;
    if(mode==='products'){key=productKey(r);label=r.descricao||'Material não informado';}
    else if(mode==='buyers'){key=norm(r.comprador)||'unassigned';label=r.comprador||'Não atribuído';}
