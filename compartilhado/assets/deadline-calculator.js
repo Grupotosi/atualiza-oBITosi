@@ -7,7 +7,7 @@
  function weekdays(a,b){return Calendar.weekdays(a,b);}
  const definitions={
   advanceDeadlineScOrder:{phase:'scOrder',limit:5,label:"Emissao Solic. → Emissao"},
-  advanceDeadlineReportPayment:{phase:'reportPayment',limit:5,label:"Data de geração do relatório → Vencto. Titulo"},
+  advanceDeadlineReportPayment:{phase:'reportPayment',limit:5,label:"Data de envio do relatório → Vencto. Titulo"},
   advanceDeadlinePaymentPrenote:{phase:'paymentPrenote',limit:7,label:"Vencto. Titulo → Dt. Pre-Nota"},
   advanceDeadlineScPrenote:{phase:'scPrenote',limit:15,label:"Emissao Solic. → Dt. Pre-Nota"},
   termDeadlineScOrder:{phase:'scOrder',limit:5,label:"Emissao Solic. → Emissao"},
@@ -26,10 +26,11 @@
   const config=definitions[criterion];if(!config)throw Error('Indicador desconhecido: '+criterion);
   const r=row||{},result={criterion,limit:config.limit,days:null,displayDays:null,from:null,to:null,displayFrom:null,displayTo:null,pending:false,overdueDays:null,paymentOverdue:false,displayBasis:'elapsed',reason:'',excluded:false,calendar:Calendar.location};
   if(cancelled(r)){result.excluded=true;result.reason='Pedido cancelado ou eliminado';return result;}
+  if(config.phase==='reportPayment'&&!isPaid(r)){result.excluded=true;result.reason='Pagamento ainda não confirmado';return result;}
   const fields={scOrder:['data_sc','data_pedido'],reportPayment:['data_relatorio','data_vencimento'],orderPayment:['data_pedido','data_vencimento'],paymentPrenote:['data_vencimento','data_pre_nota'],orderPrenote:['data_pedido','data_pre_nota'],scPrenote:['data_sc','data_pre_nota']}[config.phase];
   const from=r[fields[0]],to=r[fields[1]];
   Object.assign(result,{from:validDate(from)?from:null,to:validDate(to)?to:null,displayFrom:validDate(from)?from:null,displayTo:validDate(to)?to:null});
-  if(!validDate(from))result.reason=fields[0]==='data_relatorio'?'Data de geração do relatório não registrada':'Campo inicial ausente ou inválido: '+fields[0];
+  if(!validDate(from))result.reason=fields[0]==='data_relatorio'?'Data de envio do relatório não registrada':'Campo inicial ausente ou inválido: '+fields[0];
   else if(!validDate(to))result.reason='Campo final ausente ou inválido: '+fields[1];
   else if(to<from)result.reason='Datas invertidas: conferir campos de origem';
   else result.days=weekdays(from,to);

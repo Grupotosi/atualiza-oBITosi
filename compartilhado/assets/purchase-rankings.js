@@ -5,7 +5,7 @@
  function weekdays(a,b){return D.weekdays(a,b);}
  const phases={
   advanceDeadlineScOrder:['Emissão SC → emissão do pedido',5,'data_sc','data_pedido','prazo_time_antecipado'],
-  advanceDeadlineReportPayment:['Primeiro relatório → Vencto. Titulo',5,'data_relatorio','data_vencimento','prazo_time_antecipado'],
+  advanceDeadlineReportPayment:['Primeiro envio do relatório → Vencto. Titulo',5,'data_relatorio','data_vencimento','prazo_time_antecipado'],
   advanceDeadlinePaymentPrenote:['Vencto. Titulo → pré-nota',7,'data_vencimento','data_pre_nota','prazo_time_antecipado'],
   advanceDeadlineScPrenote:['Emissão SC → pré-nota',15,'data_sc','data_pre_nota','prazo_time_antecipado'],
   termDeadlineScOrder:['Emissão SC → emissão do pedido',5,'data_sc','data_pedido','prazo_time_faturado'],
