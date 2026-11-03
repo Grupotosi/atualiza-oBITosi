@@ -33,9 +33,10 @@
   const entries=[...groups.values()].map(g=>{
    const byOrder=new Map();for(const r of g.rows){const d=c.timing?D.resolve(r,effectiveCriterion,r.prazo_data_referencia||asOf).displayDays:null;if(d==null)continue;const key=JSON.stringify([orderKey(r),c.from==='data_sc'?r.numero_sc:r[c.from],r[c.to]]);byOrder.set(key,Math.max(d,byOrder.get(key)??0));}
    const durations=[...byOrder.values()],deliveries=events(g.rows,arrival),outsideValues=c.timing?g.rows.map(r=>D.resolve(r,effectiveCriterion,r.prazo_data_referencia||asOf)).filter(d=>d.outside&&d.displayDays!=null).map(d=>d.displayDays):[],max=outsideValues.length?Math.max(...outsideValues):durations.length?Math.max(...durations):null;
+   const summary=c.timing?D.summarize(g.rows,effectiveCriterion,asOf):null;
    const value=g.rows.reduce((n,r)=>n+Number(r.valor_total||0),0);
-   return {...g,value,orders:new Set(g.rows.map(orderKey)).size,evaluated:durations.length,mean:average(durations),max,deliveries,arrivalMean:average(deliveries.map(e=>e.days)),arrivalMax:deliveries.length?Math.max(...deliveries.map(e=>e.days)):null,lastArrival:deliveries[0]||null,
-    outside:c.timing&&g.rows.some(r=>D.resolve(r,effectiveCriterion,r.prazo_data_referencia||asOf).outside),score:c.timing?max:mode==='products'?average(deliveries.map(e=>e.days)):value};
+   return {...g,value,orders:new Set(g.rows.map(orderKey)).size,evaluated:summary?summary.evaluated:durations.length,mean:summary?summary.mean:average(durations),max,averageDays:summary?.days??null,deliveries,arrivalMean:average(deliveries.map(e=>e.days)),arrivalMax:deliveries.length?Math.max(...deliveries.map(e=>e.days)):null,lastArrival:deliveries[0]||null,
+    outside:c.timing&&summary.days!=null&&summary.days>c.limit,score:c.timing?summary.days:mode==='products'?average(deliveries.map(e=>e.days)):value};
   }).sort((a,b)=>(c.timing?Number(b.outside)-Number(a.outside):0)||(b.score??-Infinity)-(a.score??-Infinity)||a.label.localeCompare(b.label,'pt-BR'));
   const totalValue=rows.reduce((n,r)=>n+Number(r.valor_total||0),0);
   return {config:c,arrival,entries,totalValue};
