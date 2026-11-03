@@ -1,0 +1,9 @@
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.TosiPurchaseTrends=api;})(globalThis,function(){
+ 'use strict';
+ const period=r=>/^\d{4}-\d{2}-\d{2}$/.test(r.data_pedido||'')?r.data_pedido.slice(0,7):null;
+ function scope(filters={}){return {...filters,mes:'all',ano:'all',from:'',to:''};}
+ function combine(current,archive=[]){const months=new Set(current.map(period).filter(Boolean));return [...current,...archive.filter(r=>period(r)&&!months.has(period(r)))];}
+ function monthly(rows){const groups=new Map();for(const r of rows){const p=period(r);if(!p)continue;if(!groups.has(p))groups.set(p,{periodo:p,valor:0,itens:0,orders:new Set(),historico:false,source:''});const m=groups.get(p);m.valor+=Number(r.valor_total||0);m.itens++;m.orders.add(JSON.stringify([r.filial,r.num_pc]));if(r.historico_origem){m.historico=true;m.source=r.historico_origem;}}return [...groups.values()].sort((a,b)=>a.periodo.localeCompare(b.periodo)).map(({orders,...m})=>({...m,pedidos:orders.size}));}
+ function buyerMonthly(rows,days,cancelled=()=>false){const grouped=new Map();for(const r of rows){const month=period(r);if(!month||cancelled(r))continue;const value=days(r.data_sc,r.data_pedido);if(value==null)continue;const buyer=r.comprador||'Não atribuído',key=JSON.stringify([buyer,month]);if(!grouped.has(key))grouped.set(key,{comprador:buyer,periodo:month,orders:new Map()});const g=grouped.get(key),order=JSON.stringify([r.filial,r.num_pc]);g.orders.set(order,Math.max(value,g.orders.get(order)??0));}return [...grouped.values()].sort((a,b)=>a.periodo.localeCompare(b.periodo)||a.comprador.localeCompare(b.comprador,'pt-BR')).map(({orders,...g})=>{const v=[...orders.values()];return {...g,avaliados:v.length,dentro:v.filter(d=>d<=5).length,fora:v.filter(d=>d>5).length,tempo_medio:v.reduce((a,b)=>a+b,0)/v.length};});}
+ return {scope,period,combine,monthly,buyerMonthly};
+});
